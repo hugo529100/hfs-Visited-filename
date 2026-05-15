@@ -4,10 +4,16 @@ exports.repo = "Hug3O/Visited-filename"
 exports.description = "Visited file indicator and episode tag"
 
 exports.config = {
+  visited: {
+    type: 'boolean',
+    label: 'Show visited indicator',
+    defaultValue: true,
+    frontend: true
+  },
   keepDays: {
     type: 'number',
     label: 'Visited indicator keep time (days)',
-    defaultValue: 1,
+    defaultValue: 7,
     min: 1,
     frontend: true
   },
