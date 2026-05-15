@@ -1,0 +1,23 @@
+/* 文件名容器本身是 flex */
+.entry-name {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* 访问过小点：通过 order:-1 固定在文件名最前面 */
+.hfs-visited-dot {
+  order: -1;
+  margin-right: 0.4em;
+  font-size: 0.9em;
+  user-select: none;
+  margin: -10px 0;
+  z-index: 1;
+}
+
+/* 剧集号标记：跟在文件名后方 */
+.hfs-episode-tag {
+  font-size: 0.7em;
+  color: var(--comment-contrast);
+  margin-bottom: -0.5em;
+}
+
