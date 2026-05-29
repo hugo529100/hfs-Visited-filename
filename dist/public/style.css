@@ -4,14 +4,32 @@
   align-items: center;
 }
 
-/* 访问过小点：通过 order:-1 固定在文件名最前面 */
-.hfs-visited-dot {
-  order: -1;
-  margin-right: 0.4em;
+/* 已读标记：浮动在图标顶部中间 */
+.hfs-visited-marker {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 0.9em;
   user-select: none;
-  margin: -10px 0;
+  pointer-events: none;
   z-index: 1;
+  white-space: nowrap;
+}
+
+/* 新文件标记：浮动在图标顶部中间 */
+.hfs-new-marker {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75em;
+  user-select: none;
+  pointer-events: none;
+  z-index: 2;
+  white-space: nowrap;
+  margin-top: 12px;
+  animation: blink 1s steps(1) infinite;
 }
 
 /* 剧集号标记：跟在文件名后方 */
@@ -21,3 +39,24 @@
   margin-bottom: -0.5em;
 }
 
+/* 列表模式：标记跟在名字后面 */
+.list-mode .hfs-visited-marker,
+.list-mode .hfs-new-marker,
+.list-mode .hfs-episode-tag {
+  position: static;
+  transform: none;
+  top: auto;
+  left: auto;
+  pointer-events: auto;
+  z-index: auto;
+  margin-left: 0.4em;
+}
+
+.list-mode .hfs-visited-marker {
+  font-size: 0.9em;
+}
+
+.list-mode .hfs-new-marker {
+  font-size: 0.75em;
+  margin-top: 0;
+}

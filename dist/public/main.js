@@ -30,6 +30,7 @@
     if (!entry?.uri) return
     const cfg = HFS.getPluginConfig()
     if (!cfg.visited) return
+    if (!cfg.visitedFolders && entry.isFolder) return
     const keepMs = (cfg.keepDays || 7) * 86400 * 1000
     const data = cleanup(load(), keepMs)
     data[entry.uri] = Date.now()
@@ -97,6 +98,13 @@
     return null
   }
 
+  function isNewFile(entry, cfg) {
+    if (!cfg.newMark) return false
+    const dt = (cfg.newDays || 7) * 86400 * 1000
+    const match = HFS.misc.makeMatcher(cfg.newOnly, true)
+    return Math.max(entry.c || 0, entry.m || 0) > Date.now() - dt && match(entry.n)
+  }
+
   HFS.onEvent('fileShow', ({ entry }) => {
     markVisited(entry)
   })
@@ -105,22 +113,35 @@
     const cfg = HFS.getPluginConfig()
     const keepMs = (cfg.keepDays || 7) * 86400 * 1000
     const data = cfg.visited ? cleanup(load(), keepMs) : {}
-    const visited = cfg.visited && !!data[entry.uri]
+    const visited = cfg.visited && !!data[entry.uri] && (cfg.visitedFolders || !entry.isFolder)
     const episodeText = cfg.episode && entry.n ? extractEpisode(entry.n) : null
+    const isNew = isNewFile(entry, cfg)
 
-    if (!visited && !episodeText) return
-
-    if (visited && episodeText) {
-      return HFS.h('span', { style: 'display:contents' }, [
-        HFS.h('span', { className: 'hfs-visited-dot', 'aria-hidden': 'true' }, '---'),
-        HFS.h('span', { className: 'hfs-episode-tag' }, episodeText)
-      ])
+    // 收集所有需要显示的元素
+    const elements = []
+    
+    if (visited && cfg.visitedHtml) {
+      const visitedMarker = HFS.h('span', { 
+        className: 'hfs-visited-marker',
+        innerHTML: cfg.visitedHtml 
+      })
+      elements.push(visitedMarker)
+    }
+    
+    if (isNew && cfg.newHtml) {
+      const newMarker = HFS.h('span', { 
+        className: 'hfs-new-marker',
+        innerHTML: cfg.newHtml 
+      })
+      elements.push(newMarker)
+    }
+    
+    if (episodeText) {
+      elements.push(HFS.h('span', { className: 'hfs-episode-tag' }, episodeText))
     }
 
-    if (visited) {
-      return HFS.h('span', { className: 'hfs-visited-dot', 'aria-hidden': 'true' }, '---')
-    }
-
-    return HFS.h('span', { className: 'hfs-episode-tag' }, episodeText)
+    if (elements.length === 0) return
+    
+    return HFS.h('span', { style: 'display:contents' }, elements)
   })
 }
