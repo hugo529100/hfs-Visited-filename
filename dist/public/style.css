@@ -1,8 +1,8 @@
-/* 文件名容器本身是 flex */
+/* 文件名容器本身是 flex 
 .entry-name {
   display: inline-flex;
   align-items: center;
-}
+}*/
 
 /* 已读标记：浮动在图标顶部中间 */
 .hfs-visited-marker {
@@ -29,7 +29,7 @@
   z-index: 2;
   white-space: nowrap;
   margin-top: 12px;
-  animation: blink 1s steps(1) infinite;
+  animation: blink 1.6s infinite;
 }
 
 /* 剧集号标记：跟在文件名后方 */
