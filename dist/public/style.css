@@ -20,6 +20,7 @@
 /* 新文件标记：浮动在图标顶部中间 */
 .hfs-new-marker {
   position: absolute;
+  color: var(--comment-contrast);
   top: -13px;
   left: 50%;
   transform: translateX(-50%);
@@ -60,3 +61,12 @@
   font-size: 0.75em;
   margin-top: 0;
 }
+
+/* hfs 标签：整体不换行 */
+.hfs-new-marker,
+.hfs-episode-tag {
+    white-space: nowrap;
+    display: inline-block;   
+    flex: 0 0 auto;       
+}
+
