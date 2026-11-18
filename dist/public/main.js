@@ -105,6 +105,31 @@
     return Math.max(entry.c || 0, entry.m || 0) > Date.now() - dt && match(entry.n)
   }
 
+  // 劇集標記要跟 comment 排在同一行（在 comment 左側），不能自己佔一行。
+  //  - 磁貼模式：塞進 .entry-comment 開頭；沒有 comment 就塞進 .entry-details
+  //  - 列表模式：留在 <li> 裡、緊貼 .entry-panel 之前
+  function placeEpisodeTag(tag) {
+    if (!tag || !tag.isConnected) return
+    const li = tag.closest('li')
+    if (!li) return
+
+    const panel = li.querySelector(':scope > .entry-panel')
+    const comment = li.querySelector('.entry-comment')
+    const details = li.querySelector('.entry-details')
+
+    if (li.closest('.list-wrapper.tiles-mode')) {
+      const target = comment || details
+      if (target && tag.parentElement !== target) target.insertBefore(tag, target.firstChild)
+    } else if (panel && tag.parentElement !== li) {
+      li.insertBefore(tag, panel)
+    }
+  }
+
+  function schedulePlaceEpisodeTag(tag) {
+    if (!tag) return
+    requestAnimationFrame(() => placeEpisodeTag(tag))
+  }
+
   HFS.onEvent('fileShow', ({ entry }) => {
     markVisited(entry)
   })
@@ -117,31 +142,52 @@
     const episodeText = cfg.episode && entry.n ? extractEpisode(entry.n) : null
     const isNew = isNewFile(entry, cfg)
 
-    // 收集所有需要显示的元素
-    const elements = []
-    
+    // 已讀／NEW 標記：留在檔名後面
+    const nameMarks = []
+
     if (visited && cfg.visitedHtml) {
-      const visitedMarker = HFS.h('span', { 
+      const visitedMarker = HFS.h('span', {
         className: 'hfs-visited-marker',
-        innerHTML: cfg.visitedHtml 
+        innerHTML: cfg.visitedHtml
       })
-      elements.push(visitedMarker)
-    }
-    
-    if (isNew && cfg.newHtml) {
-      const newMarker = HFS.h('span', { 
-        className: 'hfs-new-marker',
-        innerHTML: cfg.newHtml 
-      })
-      elements.push(newMarker)
-    }
-    
-    if (episodeText) {
-      elements.push(HFS.h('span', { className: 'hfs-episode-tag' }, episodeText))
+      nameMarks.push(visitedMarker)
     }
 
-    if (elements.length === 0) return
-    
-    return HFS.h('span', { style: 'display:contents' }, elements)
+    if (isNew && cfg.newHtml) {
+      const newMarker = HFS.h('span', {
+        className: 'hfs-new-marker',
+        innerHTML: cfg.newHtml
+      })
+      nameMarks.push(newMarker)
+    }
+
+    // 劇集標記：不放進 display:contents 包裹層（主題會把它搬進 .link-wrapper，
+    // 檔名一長就被擠到第二行，在檔名和大小／時間之間頂出一行）。
+    // 標記掛上 ref，等 React 掛載後再由 placeEpisodeTag 搬到 comment 那一行。
+    const episodeTag = episodeText
+      ? HFS.h('span', {
+          className: 'hfs-episode-tag',
+          ref: schedulePlaceEpisodeTag
+        }, episodeText)
+      : null
+
+    if (nameMarks.length === 0 && !episodeTag) return
+
+    const marksWrapper = nameMarks.length
+      ? HFS.h('span', { style: 'display:contents' }, nameMarks)
+      : null
+
+    if (!marksWrapper) return episodeTag
+    if (!episodeTag) return marksWrapper
+    return [marksWrapper, episodeTag]
   })
+
+  // 切換列表／磁貼模式後，把已有的劇集標記重新歸位
+  if (typeof HFS.watchState === 'function') {
+    HFS.watchState('tile_size', () => {
+      requestAnimationFrame(() => {
+        document.querySelectorAll('.hfs-episode-tag').forEach(placeEpisodeTag)
+      })
+    })
+  }
 }

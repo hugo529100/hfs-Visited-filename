@@ -57,9 +57,53 @@
   font-size: 0.9em;
 }
 
+/* 列表模式：劇集標記是 <li> 的 flex item（在 .entry-panel 之前），
+   與 comment 同一行、位於 comment 左側；不再跟著檔名換行。 */
+.list-mode .hfs-episode-tag {
+  margin: 0;
+  align-self: center;
+  font-size: 0.7em;
+  line-height: 1.2;
+  vertical-align: middle;
+}
+
 .list-mode .hfs-new-marker {
   font-size: 0.75em;
   margin-top: 0;
+}
+
+/* 磁貼模式：劇集標記貼在 comment（沒有 comment 則在大小／時間）那一行左側，
+   不再自己佔一行 */
+.tiles-mode .entry-comment > .hfs-episode-tag,
+.tiles-mode .entry-details > .hfs-episode-tag {
+  vertical-align: middle;
+  line-height: inherit;
+}
+
+/* 塞進 comment 時與 comment 同字級（comment 本身已是 0.7em） */
+.tiles-mode .entry-comment > .hfs-episode-tag {
+  font-size: 1em;
+  margin: 0 .35em 0 .5em;
+}
+
+/* 沒有 comment 時標記改貼在大小／時間那一行：與該行同字級，
+   不要因為 .entry-details 自己是 80% 而被縮得太小 */
+.tiles-mode .entry-details > .hfs-episode-tag {
+  font-size: 1em;
+  margin: 0 .3em 0 0;
+}
+
+/* 有劇集標記的 comment：把開引號移到標記後面，
+   讓標記落在引號外側，真正位於 comment 左邊（不支援 :has 時就留在引號內） */
+.tiles-mode .entry-comment:has(> .hfs-episode-tag)::before {
+  content: none;
+}
+
+.tiles-mode .entry-comment > .hfs-episode-tag::after {
+  content: "“";
+  position: relative;
+  top: .2em;
+  margin-left: .35em;
 }
 
 /* hfs 标签：整体不换行 */
