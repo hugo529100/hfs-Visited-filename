@@ -1,6 +1,6 @@
 exports.version = 1.8
 exports.apiRequired = 8.8
-exports.repo = "Hug3O/Visited-filename"
+exports.repo = "hugo529100/hfs-Visited-filename"
 exports.description = "Visited file indicator, episode tag and new file marker"
 
 exports.config = {
